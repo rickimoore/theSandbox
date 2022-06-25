@@ -9,6 +9,7 @@ export const CHAIN_ID = {
 
 export const GREETER_CHAR_LIMIT = 280;
 export const GREETING_PAGE_SIZE = 4;
+export const AUCTION_PAGE_SIZE = 7;
 export const BID_PAGE_SIZE = 5;
 
 export const CACHED_WEB3_CONNECTOR = 'CACHED_WEB3_CONNECTOR';
