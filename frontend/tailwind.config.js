@@ -17,6 +17,9 @@ module.exports = {
       animation: {
         fadeRiseIn: 'fadeRiseIn .2s ease-in-out',
       },
+      minWidth: {
+        '100': '100px'
+      },
       width: {
         '450': '450px',
         '576': '576px'
