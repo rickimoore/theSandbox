@@ -1,0 +1,17 @@
+{
+  "localhost": {
+    "Greeting": {
+      "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+    }
+  },
+  "rinkeby": {
+    "Greeting": {
+      "address": "0xDE056f5aE567E11014306885eF602139Fd9bB300"
+    }
+  },
+  "mumbai": {
+    "Greeting": {
+      "address": "0xd259BC06517f69A9489fab62C352091C0e48df0F"
+    }
+  }
+}

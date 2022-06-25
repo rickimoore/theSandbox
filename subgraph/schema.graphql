@@ -1,0 +1,13 @@
+type Greeting @entity {
+  id: ID!
+  owner: Bytes! # address
+  message: String!
+  timestamp: BigInt!
+}
+
+type Award @entity {
+  id: ID!
+  owner: Bytes! #address
+  nft: ID!
+  timestamp: BigInt!
+}

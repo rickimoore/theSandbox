@@ -1,0 +1,48 @@
+specVersion: 0.0.2
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: BlockAuction
+    network: goerli
+    source:
+      address: "0xa9B01b85a67043235315bd8492f8135731D436c5"
+      abi: BlockAuction
+      startBlock: 7014691
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - ApprovalForAll
+        - BidBlockAuction
+        - BlockAwarded
+        - BlockRedeemable
+        - BlockRedeemed
+        - ClaimBlockAuction
+        - CreateBlockAuction
+        - Transfer
+      abis:
+        - name: BlockAuction
+          file: BlockAuction/abis/BlockAuction.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: BidBlockAuction(uint256,address,uint256)
+          handler: handleBidBlockAuction
+        - event: BlockAwarded(address,uint256)
+          handler: handleBlockAwarded
+        - event: BlockRedeemable(uint256)
+          handler: handleBlockRedeemable
+        - event: BlockRedeemed(uint256)
+          handler: handleBlockRedeemed
+        - event: ClaimBlockAuction(uint256)
+          handler: handleClaimBlockAuction
+        - event: CreateBlockAuction((address,uint256,uint16,uint256,uint40,uint40,bool,bool,bool),uint256)
+          handler: handleCreateBlockAuction
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: BlockAuction/BlockAuction.wasm

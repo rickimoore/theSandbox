@@ -1,0 +1,34 @@
+type BlockAuction @entity {
+  id: ID!
+  highestBidder: Bytes # address
+  highestBid: BigInt
+  minHigherBid: BigInt
+  minBid: BigInt!
+  startTime: BigInt!
+  endTime: BigInt!
+  isClaimed: Boolean!
+  isRedeemable: Boolean!
+  isRedeemed: Boolean!
+  createdAt: BigInt!
+  bids: [Bid!] @derivedFrom(field: "auction")
+}
+
+type BlockNft @entity {
+ id: ID!
+ owner: Account!
+ timestamp: BigInt!
+}
+
+type Account @entity {
+ id: ID!
+ bids: [Bid!] @derivedFrom(field: "from")
+}
+
+type Bid @entity {
+  id: ID!
+  auction: BlockAuction!
+  amount: BigInt!
+  from: Account!
+  txHashCreated: Bytes!
+  timestamp: BigInt!
+}

@@ -1,0 +1,1 @@
+export const hexToNumber = (hexString) => parseInt(hexString, 16);

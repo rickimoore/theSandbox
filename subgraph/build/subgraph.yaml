@@ -1,0 +1,35 @@
+specVersion: 0.0.2
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Greeting
+    network: mumbai
+    source:
+      address: "0xd259BC06517f69A9489fab62C352091C0e48df0F"
+      abi: Greeting
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - ApprovalForAll
+        - GreetingSet
+        - MessengerAwarded
+        - Transfer
+      abis:
+        - name: Greeting
+          file: Greeting/abis/Greeting.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: GreetingSet(address,string)
+          handler: handleGreetingSet
+        - event: MessengerAwarded(address,uint256)
+          handler: handleMessengerAwarded
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: Greeting/Greeting.wasm
