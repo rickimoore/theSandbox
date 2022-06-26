@@ -49,7 +49,7 @@ export default function CreateAuction () {
       <div className="w-screen h-screen bg-sandMedium flex items-center justify-center">
         <Navbar/>
         {txHash ? (
-            <TransactionStateScreen isComplete={isCompleteTx} txHash={txHash}/>
+            <TransactionStateScreen isComplete={isCompleteTx} txHash={txHash} redirectCta="View Auctions" redirectDestination="/auctions"/>
         ) : (
             <div className="max-w-xl w-full bg-white p-4 rounded">
               <h2>Create a new auction</h2>
