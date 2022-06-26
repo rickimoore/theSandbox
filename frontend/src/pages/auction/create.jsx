@@ -6,6 +6,7 @@ import "antd/dist/antd.css";
 import useAuctionContract from '../../hooks/useAuctionContract';
 import Button from '../../components/Button/Button';
 import TransactionStateScreen from '../../components/Transaction/TransactionStateScreen';
+import getAmountPlusPercentage from '../../utils/getAmountPlusPercentage';
 
 export default function CreateAuction () {
   const {RangePicker} = DatePicker;
@@ -13,6 +14,7 @@ export default function CreateAuction () {
   const [isCompleteTx, setIsCompleteTx] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [startEndTime, setRange] = useState();
+  const [minHigherBid, setMinHigherBid] = useState(0);
   const [minBid, setMinBid] = useState(0);
   const instance = useAuctionContract();
 
@@ -25,7 +27,7 @@ export default function CreateAuction () {
       startTime: startEndTime[0].unix(),
       endTime: startEndTime[1].unix(),
       minBid: parseEther(minBid.toString()),
-      minHigherBid: Math.floor(5 * 100),
+      minHigherBid: Math.floor(minHigherBid * 100),
     };
 
     const tx = await instance?.startBlockAuction(params).catch((e) => {
@@ -67,6 +69,13 @@ export default function CreateAuction () {
                   <div className="flex space-x-4 items-center">
                     <input onChange={e => setMinBid(+e.target.value)} className="border p-2 rounded" type="number"/>
                     <p className="m-0">ETH</p>
+                  </div>
+                </div>
+                <div>
+                  <p>Minimum Higher Bid Percentage</p>
+                  <div className="flex space-x-4 items-center">
+                    <input min={0} onChange={e => setMinHigherBid(+e.target.value)} className="border p-2 rounded" type="number"/>
+                    <p className="m-0">% (${getAmountPlusPercentage(minBid, minHigherBid)} ETH)</p>
                   </div>
                 </div>
                 <Button isLoading={isLoading} isDisabled={!startEndTime?.length} onClick={createAuction}>
