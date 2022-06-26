@@ -85,11 +85,15 @@ contract BlockAuction is ReentrancyGuard, ERC721URIStorage {
             revert HasTopBid();
         }
 
-        if(msg.value <= auction.highestBid || msg.value <= auction.minBid || msg.value == 0) {
+        if(msg.value < auction.minBid || msg.value == 0) {
             revert BidNotSufficient();
         }
 
         if(auction.highestBidder != address(0)) {
+            if(msg.value < ((auction.highestBid * auction.minHigherBid / 10_000) + auction.highestBid)) {
+                revert BidNotSufficient();
+            }
+
             if(!auction.highestBidder.send(auction.highestBid)) {
                 revert ReturnFundsFailed();
             }
