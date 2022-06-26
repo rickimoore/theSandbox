@@ -7,6 +7,7 @@ export const GET_AUCTION = gql`
       startTime,
       endTime,
       highestBid,
+      minHigherBid,
       minBid,
       highestBidder,
       isClaimed,
