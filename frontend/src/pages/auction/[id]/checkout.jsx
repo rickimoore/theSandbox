@@ -9,7 +9,7 @@ export default function Checkout () {
     query: { id },
   } = useRouter();
 
-  const { data, error } = useFetchAuctionQuery(id);
+  const { data } = useFetchAuctionQuery(id);
 
   return (
       <div className="w-screen h-screen bg-sandMedium flex">

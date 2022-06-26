@@ -106,16 +106,10 @@ export const CARD = {
     width: 300
 }
 
-export const EXPLORER_NETWORKS = [
-    'eth'
-]
-
-export const DEFAULT_NFT_CONTRACTS = [
-    '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D'
-]
-
 export const AUCTION_PERIOD = {
     OVER: 'OVER',
     COMING: 'COMING',
     LIVE: 'LIVE'
 }
+
+export const MAX_GAS_WEI = 1000000000;

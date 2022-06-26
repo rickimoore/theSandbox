@@ -1,10 +1,9 @@
 import padStartZeros from '../../utils/padStartZeros';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {Auction} from '../../proptypes/auction';
 import {useWeb3React} from '@web3-react/core';
 import useAuctionContract from '../../hooks/useAuctionContract';
-import formatEth from '../../utils/formatEth';
 import {hexToNumber} from '../../utils/hexToNumber';
 import {getPeriodTime} from '../../utils/getTimePeriod';
 import isMatchingAddress from '../../utils/isMatchingAddress';
@@ -13,38 +12,35 @@ import {AUCTION_PERIOD} from '../../../constants';
 import {useRouter} from 'next/router';
 import Button from '../Button/Button';
 import TransactionStateScreen from '../Transaction/TransactionStateScreen';
+import useMinBidAmount from '../../hooks/useMinBidAmount';
+import useCheckWalletBalance from '../../hooks/useCheckWalletBalance';
+import useCalculatedGasFees from '../../hooks/useCalculatedGasFees';
 
 const AuctionCheckout = ({auction}) => {
   const {
     push
   } = useRouter();
-  const { id, startTime, endTime, highestBid, minBid, highestBidder } = auction;
-  const { account, library } = useWeb3React();
+  const { id, startTime, endTime, highestBidder } = auction;
+  const { minBidAmount } = useMinBidAmount(auction);
+
+  const { active, account } = useWeb3React();
   const instance = useAuctionContract();
+  const { calculateGasFee } = useCalculatedGasFees();
 
   const [isLoading, setLoading] = useState(false);
   const [isComplete, setComplete] = useState(false);
   const [txHash, setHash] = useState('');
 
-  const [bid, setBid] = useState(0);
+  const [bid, setBid] = useState(minBidAmount || 0);
   const [estimatedGasFee, setGasFee] = useState(0);
-  const [insufficientBalance, setBalanceStatus] = useState(false);
+  const { insufficientBalance } = useCheckWalletBalance(bid);
 
-  const topBid = formatEth(highestBid || minBid || 0);
 
   const auctionId = hexToNumber(id);
   const auctionPeriod = getPeriodTime(startTime, endTime);
   const hasTopBid = isMatchingAddress(highestBidder, account);
-  const isBidTooLow = bid <= topBid;
-
-  const validateBidBalance = useCallback(async () => {
-    if(account && bid > 0) {
-      const balance = await library.getBalance(account);
-      const formattedBalance = parseFloat(formatUnits(balance.toString(), 18));
-
-      return  formattedBalance <= bid;
-    }
-  }, [account, bid]);
+  const isBidTooLow = bid < minBidAmount;
+  const isInvalidBid = !active || !auctionId || bid <= 0 || !bid || insufficientBalance || isBidTooLow || hasTopBid;
 
   useEffect(() => {
     if(auctionId && auctionPeriod !== AUCTION_PERIOD.LIVE) {
@@ -53,31 +49,23 @@ const AuctionCheckout = ({auction}) => {
   }, [auctionPeriod, auctionId]);
 
   useEffect(() => {
-    (async () => {
-      const isSufficient = await validateBidBalance();
-      setBalanceStatus(isSufficient);
-    })();
-  }, [bid]);
-
-  useEffect(() => {
-    if(!auctionId || bid <= 0 || !bid || insufficientBalance) {
+    if(isInvalidBid) {
       setGasFee(0);
       return;
     };
 
     (async () => {
       const wei = parseEther(bid.toString());
-      const gasPrice = await library?.getGasPrice();
+      const gasFees = await calculateGasFee();
 
       const fee = await instance?.estimateGas.bidBlockAuction(auctionId, { from: account, value: wei.toString()}).catch(e => {
         console.log(e, 'error')
       });
 
       if(!fee) return;
-
-      setGasFee(parseFloat(formatUnits(fee.toString(), 18)) * parseFloat(gasPrice));
+      setGasFee(parseFloat(formatUnits(fee.toString(), 18)) * parseFloat(gasFees.maxPriorityFeePerGas.toString()));
     })();
-  }, [bid, auctionId, account, insufficientBalance, library]);
+  }, [bid, auctionId, isInvalidBid, account]);
 
   const bidAuction = async () => {
     if(bid <= 0 || !bid) return;
@@ -85,8 +73,9 @@ const AuctionCheckout = ({auction}) => {
     setLoading(true);
 
     const wei = parseEther(bid.toString());
+    const gasFees = await calculateGasFee();
 
-    const tx = await instance?.bidBlockAuction(auctionId, { from: account, value: wei.toString()}).catch((e) => {
+    const tx = await instance?.bidBlockAuction(auctionId, { from: account, value: wei.toString(), ...gasFees}).catch((e) => {
       console.log(e)
       setLoading(false);
     });
@@ -122,7 +111,7 @@ const AuctionCheckout = ({auction}) => {
                   <input disabled={hasTopBid} placeholder=".01" value={bid} min={0}
                          onChange={e => setBid(e.target.value ? Number(e.target.value) : '')}
                          className="w-full p-2 border border-sandDark disabled:pointer-events-none disabled:opacity-50 outline-none bg-transparent" type="number"/>
-                  <p className="text-xs font-bold">Minimum Bid: {topBid} ETH</p>
+                  <p className="text-xs font-bold">Minimum Bid: {minBidAmount} ETH</p>
                 </div>
                 <div>
                   <h3 className="mb-8">Bid Summary</h3>
@@ -137,14 +126,14 @@ const AuctionCheckout = ({auction}) => {
                 </div>
                 <div className="mt-8 space-y-4">
                   {
-                    (hasTopBid || isBidTooLow || insufficientBalance) && (
+                    bid > 0 && (hasTopBid || isBidTooLow || insufficientBalance) && (
                         <div className="border-sandDark border-2 p-4">
                           {hasTopBid ? 'You already have the top bid!' : insufficientBalance ? 'Insufficient balance' : 'Bid is too low!'}
                         </div>
                     )
                   }
                   <Button onClick={bidAuction} isLoading={isLoading}
-                          isDisabled={insufficientBalance || bid === 0 || isBidTooLow}>
+                          isDisabled={isInvalidBid}>
                     Place Bid
                   </Button>
                 </div>
