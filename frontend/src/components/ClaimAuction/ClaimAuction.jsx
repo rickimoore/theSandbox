@@ -3,16 +3,19 @@ import useAuctionContract from '../../hooks/useAuctionContract';
 import PropTypes from 'prop-types';
 import {CHAIN_PARAMS, DEFAULT_CHAIN_ID} from '../../../constants';
 import formatAddress from '../../utils/formatAddress';
+import useCalculatedGasFees from '../../hooks/useCalculatedGasFees';
 
 const ClaimAuction = ({auctionId}) => {
   const instance = useAuctionContract();
   const [isLoading, setLoading] = useState(false);
   const [isConfirmed, setConfirmed] = useState(false);
   const [txHash, setHash] = useState('');
+  const { calculateGasFee } = useCalculatedGasFees();
 
   const claimAuction = async () => {
     setLoading(true);
-    const tx = await instance?.claimAuction(auctionId).catch((e) => {
+    const gasFees = await calculateGasFee();
+    const tx = await instance?.claimAuction(auctionId, gasFees).catch((e) => {
       console.log(e)
       setLoading(false);
     });
