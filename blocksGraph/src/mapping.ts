@@ -67,7 +67,7 @@ export function handleCreateBlockAuction(event: CreateBlockAuction): void {
   auction.isRedeemed = false;
   auction.minBid = params.minBid;
   auction.createdAt = event.block.timestamp;
-  // auction.minHigherBid = params.minHigherBid;
+  auction.minHigherBid = params.minHigherBid;
   auction.save();
 }
 

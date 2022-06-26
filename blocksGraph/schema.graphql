@@ -2,7 +2,7 @@ type BlockAuction @entity {
   id: ID!
   highestBidder: Bytes # address
   highestBid: BigInt
-  minHigherBid: BigInt
+  minHigherBid: Int!
   minBid: BigInt!
   startTime: BigInt!
   endTime: BigInt!

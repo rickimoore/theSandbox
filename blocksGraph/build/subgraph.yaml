@@ -6,9 +6,9 @@ dataSources:
     name: BlockAuction
     network: goerli
     source:
-      address: "0xa9B01b85a67043235315bd8492f8135731D436c5"
+      address: "0x3bB7041d4cF17f6262CF59E107c29f161BF62e86"
       abi: BlockAuction
-      startBlock: 7014691
+      startBlock: 7122429
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5

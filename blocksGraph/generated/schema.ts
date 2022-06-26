@@ -77,21 +77,13 @@ export class BlockAuction extends Entity {
     }
   }
 
-  get minHigherBid(): BigInt | null {
+  get minHigherBid(): i32 {
     let value = this.get("minHigherBid");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
+    return value!.toI32();
   }
 
-  set minHigherBid(value: BigInt | null) {
-    if (!value) {
-      this.unset("minHigherBid");
-    } else {
-      this.set("minHigherBid", Value.fromBigInt(<BigInt>value));
-    }
+  set minHigherBid(value: i32) {
+    this.set("minHigherBid", Value.fromI32(value));
   }
 
   get minBid(): BigInt {
