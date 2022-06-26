@@ -9,10 +9,12 @@ import {getPeriodTime} from '../../utils/getTimePeriod';
 import {useWeb3React} from '@web3-react/core';
 import ClaimAuction from '../ClaimAuction/ClaimAuction';
 import formatAddress from '../../utils/formatAddress';
+import useMinBidAmount from '../../hooks/useMinBidAmount';
 
 const AuctionActions = ({auction}) => {
   const { account } = useWeb3React();
-  const { id, startTime, endTime, highestBid, minBid, isClaimed, highestBidder } = auction;
+  const { id, startTime, endTime, highestBid, isClaimed, highestBidder } = auction;
+  const { minBidAmount } = useMinBidAmount(auction);
 
   const auctionId = hexToNumber(id);
   const auctionPeriod = getPeriodTime(startTime, endTime);
@@ -20,7 +22,7 @@ const AuctionActions = ({auction}) => {
   if(auctionPeriod === AUCTION_PERIOD.LIVE) {
     return (
         <div>
-          <p className="mb-2 font-bold text-xs">Minimum Bid: {formatEth(highestBid || minBid || 0)} ETH</p>
+          <p className="mb-2 font-bold text-xs">Minimum Bid: {minBidAmount} ETH</p>
           <Link href={`/auction/${auctionId}/checkout`} passHref>
             <a>
               <button className="w-full cursor-pointer p-4 bg-midnight hover:bg-midnightMedium text-white">
