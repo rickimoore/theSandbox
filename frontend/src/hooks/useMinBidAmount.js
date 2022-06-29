@@ -8,14 +8,12 @@ const useMinBidAmount = (auction) => {
 
     const { minBid, minHigherBid, highestBid } = auction;
 
-    const formattedMinBid = formatEth(minBid);
-
     if(highestBid) {
       const formattedHighestBid = formatEth(highestBid);
       return getAmountPlusPercentage(formattedHighestBid, minHigherBid / 100);
     }
 
-    return getAmountPlusPercentage(formattedMinBid, minHigherBid / 100);
+    return formatEth(minBid);
   }, [auction]);
 
 
