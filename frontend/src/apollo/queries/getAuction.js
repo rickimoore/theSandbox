@@ -11,6 +11,7 @@ export const GET_AUCTION = gql`
       minBid,
       highestBidder,
       isClaimed,
+      createdAt,
       isRedeemed,
       isRedeemable,
     }
