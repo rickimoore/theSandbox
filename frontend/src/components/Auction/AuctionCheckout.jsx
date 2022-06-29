@@ -2,7 +2,6 @@ import padStartZeros from '../../utils/padStartZeros';
 import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {Auction} from '../../proptypes/auction';
-import {useWeb3React} from '@web3-react/core';
 import useAuctionContract from '../../hooks/useAuctionContract';
 import {hexToNumber} from '../../utils/hexToNumber';
 import {getPeriodTime} from '../../utils/getTimePeriod';
@@ -15,6 +14,7 @@ import TransactionStateScreen from '../Transaction/TransactionStateScreen';
 import useMinBidAmount from '../../hooks/useMinBidAmount';
 import useCheckWalletBalance from '../../hooks/useCheckWalletBalance';
 import useCalculatedGasFees from '../../hooks/useCalculatedGasFees';
+import {useAccount} from 'wagmi';
 
 const AuctionCheckout = ({auction}) => {
   const {
@@ -22,8 +22,8 @@ const AuctionCheckout = ({auction}) => {
   } = useRouter();
   const { id, startTime, endTime, highestBidder } = auction;
   const { minBidAmount } = useMinBidAmount(auction);
+  const { data } = useAccount();
 
-  const { active, account } = useWeb3React();
   const instance = useAuctionContract();
   const { calculateGasFee } = useCalculatedGasFees();
 
@@ -33,14 +33,14 @@ const AuctionCheckout = ({auction}) => {
 
   const [bid, setBid] = useState(minBidAmount || 0);
   const [estimatedGasFee, setGasFee] = useState(0);
-  const { insufficientBalance } = useCheckWalletBalance(bid);
+  const hasBidBalance = useCheckWalletBalance(bid);
 
 
   const auctionId = hexToNumber(id);
   const auctionPeriod = getPeriodTime(startTime, endTime);
-  const hasTopBid = isMatchingAddress(highestBidder, account);
+  const hasTopBid = isMatchingAddress(highestBidder, data?.address);
   const isBidTooLow = bid < minBidAmount;
-  const isInvalidBid = !active || !auctionId || bid <= 0 || !bid || insufficientBalance || isBidTooLow || hasTopBid;
+  const isInvalidBid = !data?.address || !auctionId || bid <= 0 || !bid || !hasBidBalance || isBidTooLow || hasTopBid;
 
   useEffect(() => {
     if(auctionId && auctionPeriod !== AUCTION_PERIOD.LIVE) {
@@ -58,14 +58,16 @@ const AuctionCheckout = ({auction}) => {
       const wei = parseEther(bid.toString());
       const gasFees = await calculateGasFee();
 
-      const fee = await instance?.estimateGas.bidBlockAuction(auctionId, { from: account, value: wei.toString()}).catch(e => {
+      if(!gasFees) return;
+
+      const fee = await instance?.estimateGas.bidBlockAuction(auctionId, { from: data?.address, value: wei.toString()}).catch(e => {
         console.log(e, 'error')
       });
 
       if(!fee) return;
       setGasFee(parseFloat(formatUnits(fee.toString(), 18)) * parseFloat(gasFees.maxPriorityFeePerGas.toString()));
     })();
-  }, [bid, auctionId, isInvalidBid, account]);
+  }, [bid, auctionId, isInvalidBid, data]);
 
   const bidAuction = async () => {
     if(bid <= 0 || !bid) return;
@@ -75,7 +77,7 @@ const AuctionCheckout = ({auction}) => {
     const wei = parseEther(bid.toString());
     const gasFees = await calculateGasFee();
 
-    const tx = await instance?.bidBlockAuction(auctionId, { from: account, value: wei.toString(), ...gasFees}).catch((e) => {
+    const tx = await instance?.bidBlockAuction(auctionId, { from: data.address, value: wei.toString(), ...gasFees}).catch((e) => {
       console.log(e)
       setLoading(false);
     });
@@ -95,7 +97,7 @@ const AuctionCheckout = ({auction}) => {
 
   return (
       <>
-        <div className="w-576 bg-sand">
+        <div className="w-576 bg-sand flex items-center justify-center">
           hello image
         </div>
         <div className="flex-1 pt-24 flex justify-center">
@@ -126,15 +128,15 @@ const AuctionCheckout = ({auction}) => {
                 </div>
                 <div className="mt-8 space-y-4">
                   {
-                    bid > 0 && (hasTopBid || isBidTooLow || insufficientBalance) && (
+                    bid > 0 && (hasTopBid || isBidTooLow || !hasBidBalance) && (
                         <div className="border-sandDark border-2 p-4">
-                          {hasTopBid ? 'You already have the top bid!' : insufficientBalance ? 'Insufficient balance' : 'Bid is too low!'}
+                          {hasTopBid ? 'You already have the top bid!' : !hasBidBalance ? 'Insufficient balance' : 'Bid is too low!'}
                         </div>
                     )
                   }
                   <Button onClick={bidAuction} isLoading={isLoading}
                           isDisabled={isInvalidBid}>
-                    Place Bid
+                    {data?.address ? 'Place Bid' : 'Connect Wallet'}
                   </Button>
                 </div>
               </div>

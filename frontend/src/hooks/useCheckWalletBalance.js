@@ -1,32 +1,17 @@
-import {useCallback, useEffect, useState} from 'react';
-import {formatUnits} from 'ethers/lib/utils';
-import {useWeb3React} from '@web3-react/core';
+import {useMemo} from 'react';
+import {useAccount, useBalance} from 'wagmi';
+import {parseEther} from 'ethers/lib/utils';
 
 const useCheckWalletBalance = (bid) => {
-  const { account, library } = useWeb3React();
-  const [insufficientBalance, setBalanceStatus] = useState(false);
+  const { data } = useAccount();
+  const balance = useBalance({
+    addressOrName: data?.address,
+  });
 
-  const validateBidBalance = useCallback(async () => {
-    if(account && bid > 0) {
-      const balance = await library.getBalance(account);
-      const formattedBalance = parseFloat(formatUnits(balance.toString(), 18));
-
-      return  formattedBalance <= bid;
-    }
-  }, [account, library, bid]);
-
-  useEffect(() => {
-    if(!bid) return;
-
-    (async () => {
-      const isSufficient = await validateBidBalance();
-      setBalanceStatus(isSufficient);
-    })();
-  }, [bid]);
-
-  return {
-    insufficientBalance
-  }
+  return useMemo(() => {
+    if(!balance || !bid) return false;
+    return balance?.data?.value.gt(parseEther(bid.toString()));
+  }, [balance, bid]);
 }
 
 export default useCheckWalletBalance;

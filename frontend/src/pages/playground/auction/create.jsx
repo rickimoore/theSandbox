@@ -1,15 +1,15 @@
 import React, {useState} from 'react';
 import useAuctionContract from '../../../hooks/useAuctionContract';
 import Button from '../../../components/Button/Button';
-import {formatEther, formatUnits, parseUnits} from 'ethers/lib/utils';
+import {formatEther} from 'ethers/lib/utils';
 import timestampToIso from '../../../utils/timestampToIso';
-import {useWeb3React} from '@web3-react/core';
 import {parseEther} from 'ethers/lib/utils';
 import "antd/dist/antd.css";
 import { DatePicker } from 'antd';
+import {useAccount} from 'wagmi';
 
 export default function CreateAuction () {
-  const { account } = useWeb3React();
+  const { data } = useAccount();
   const instance = useAuctionContract();
   const [startEndTime, setRange] = useState();
   const [minBid, setMinBid] = useState(0);
@@ -47,11 +47,11 @@ export default function CreateAuction () {
   }
 
   const bidAuction = async () => {
-    if(amount <= 0 || !account) return;
+    if(amount <= 0 || !data?.address) return;
 
     const wei = parseEther(amount.toString());
 
-    const tx = await instance?.bidBlockAuction(1, { from: account, value: wei.toString()}).catch((e) => {
+    const tx = await instance?.bidBlockAuction(1, { from: data.address, value: wei.toString()}).catch((e) => {
       console.log(e)
     });
 
@@ -71,11 +71,11 @@ export default function CreateAuction () {
   }
 
   const redeemBlock = async () => {
-    if(redeemAmount <= 0 || !account) return;
+    if(redeemAmount <= 0 || !data?.address) return;
 
     const wei = parseEther(redeemAmount.toString());
 
-    const tx = await instance?.redeemBlock(1, { from: account, value: wei.toString()}).catch((e) => {
+    const tx = await instance?.redeemBlock(1, { from: data?.address, value: wei.toString()}).catch((e) => {
       console.log(e)
     });
 

@@ -1,12 +1,13 @@
-import { useWeb3React } from '@web3-react/core';
 import { BigNumber } from 'ethers';
 import {MAX_GAS_WEI} from '../../constants';
+import {useProvider} from 'wagmi';
+import {useCallback} from 'react';
 
 const useCalculatedGasFees = (maxWei = MAX_GAS_WEI) => {
-  const { library } = useWeb3React();
+  const provider = useProvider();
 
-  const calculateGasFee = async () => {
-    const feeData = await library?.getFeeData();
+  const calculateGasFee = useCallback(async () => {
+    const feeData = await provider?.getFeeData();
 
     if(!feeData) return;
 
@@ -23,7 +24,7 @@ const useCalculatedGasFees = (maxWei = MAX_GAS_WEI) => {
       maxPriorityFeePerGas,
       maxFeePerGas,
     };
-  };
+  }, [provider, maxWei]);
 
   return { calculateGasFee };
 };

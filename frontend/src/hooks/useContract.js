@@ -1,22 +1,14 @@
-import {ethers} from "ethers";
-import {useWeb3React} from "@web3-react/core";
-import {useMemo} from "react";
+import {useContract, useProvider, useSigner} from 'wagmi';
 
-const useContract = (contractAddress, abi) => {
-    const { account, library } = useWeb3React();
+const useConnectContract = (contractAddress, abi) => {
+    const { data: signer } = useSigner();
+    const provider = useProvider();
 
-    return useMemo(() => {
-        if(!library || !contractAddress) return null;
-
-        const provider = account ? library.getSigner(account).connectUnchecked() : library;
-
-        return new ethers.Contract(
-            contractAddress,
-            abi,
-            provider
-        );
-
-    }, [library, account, contractAddress, abi]);
+    return useContract({
+        addressOrName: contractAddress,
+        contractInterface: abi,
+        signerOrProvider: signer || provider,
+    })
 }
 
-export default useContract;
+export default useConnectContract;
