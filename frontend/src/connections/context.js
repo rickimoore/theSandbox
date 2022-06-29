@@ -1,6 +1,0 @@
-import {createContext} from "react";
-
-export const ConnectionContext = createContext({
-    connect: () => {},
-    disconnect: () => {},
-});
