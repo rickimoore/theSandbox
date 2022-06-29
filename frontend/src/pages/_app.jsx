@@ -1,20 +1,50 @@
 // pages/_app.js
 import React from "react";
 import '../styles/styles.css'
-import {Web3ReactProvider} from "@web3-react/core";
-import {connectors} from "../connectors";
-import getLibrary from "../utils/getLibrary";
 import ApolloProvider from '../apollo/client';
-import ConnectionProvider from "../connections/provider";
+import '@rainbow-me/rainbowkit/styles.css';
+
+import {
+  getDefaultWallets,
+  RainbowKitProvider,
+} from '@rainbow-me/rainbowkit';
+import {
+  chain,
+  configureChains,
+  createClient,
+  WagmiConfig,
+} from 'wagmi';
+import { alchemyProvider } from 'wagmi/providers/alchemy';
+import { publicProvider } from 'wagmi/providers/public';
+
+const { chains, provider } = configureChains(
+    [chain.goerli],
+    [
+      alchemyProvider({ alchemyId: process.env.NEXT_PUBLIC_ALCHEMY_KEY }),
+      publicProvider()
+    ]
+);
+
+const { connectors } = getDefaultWallets({
+  appName: 'TheSandbox',
+  chains
+});
+
+const wagmiClient = createClient({
+  autoConnect: true,
+  connectors,
+  provider
+})
+
 
 export default function MyApp({ Component, pageProps }) {
     return (
-        <Web3ReactProvider connectors={connectors} getLibrary={getLibrary}>
+        <WagmiConfig client={wagmiClient}>
+          <RainbowKitProvider chains={chains}>
             <ApolloProvider>
-                <ConnectionProvider>
-                    <Component {...pageProps} />
-                </ConnectionProvider>
+              <Component {...pageProps} />
             </ApolloProvider>
-        </Web3ReactProvider>
+          </RainbowKitProvider>
+        </WagmiConfig>
     )
 }
