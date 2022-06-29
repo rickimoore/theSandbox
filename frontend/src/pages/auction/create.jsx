@@ -7,6 +7,7 @@ import useAuctionContract from '../../hooks/useAuctionContract';
 import Button from '../../components/Button/Button';
 import TransactionStateScreen from '../../components/Transaction/TransactionStateScreen';
 import getAmountPlusPercentage from '../../utils/getAmountPlusPercentage';
+import useValidBeneficiary from '../../hooks/useValidBeneficiary';
 
 export default function CreateAuction () {
   const {RangePicker} = DatePicker;
@@ -17,7 +18,7 @@ export default function CreateAuction () {
   const [minHigherBid, setMinHigherBid] = useState(0);
   const [minBid, setMinBid] = useState(0);
   const instance = useAuctionContract();
-
+  const isBeneficiary = useValidBeneficiary();
 
   const createAuction = async () => {
     if(!startEndTime?.length) return;
@@ -48,8 +49,14 @@ export default function CreateAuction () {
 
 
   return (
-      <div className="w-screen h-screen bg-sandMedium flex items-center justify-center">
+      <div className="w-screen h-screen bg-sandMedium flex flex-col items-center justify-center">
         <Navbar/>
+        {!isBeneficiary && (
+            <div className="mb-6 max-w-md">
+              <h2>Opps...</h2>
+              <p>It looks like you're not authorized to create an auction. You may not submit the form, however you can see what parameters are used to create an auction.</p>
+            </div>
+        )}
         {txHash ? (
             <TransactionStateScreen isComplete={isCompleteTx} txHash={txHash} redirectCta="View Auctions" redirectDestination="/auctions"/>
         ) : (
@@ -78,7 +85,7 @@ export default function CreateAuction () {
                     <p className="m-0">% (${getAmountPlusPercentage(minBid, minHigherBid)} ETH)</p>
                   </div>
                 </div>
-                <Button isLoading={isLoading} isDisabled={!startEndTime?.length} onClick={createAuction}>
+                <Button isLoading={isLoading} isDisabled={!startEndTime?.length || !isBeneficiary} onClick={createAuction}>
                   Create Auction
                 </Button>
               </div>

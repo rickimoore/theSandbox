@@ -4,21 +4,21 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {Auction} from '../../proptypes/auction';
 import {getPeriodTime} from '../../utils/getTimePeriod';
-import {AUCTION_PERIOD, BENEFICIARY_ACCOUNT} from '../../../constants';
+import {AUCTION_PERIOD} from '../../../constants';
 import Button from '../Button/Button';
-import {useWeb3React} from '@web3-react/core';
 import {getAuctionCardUrl} from '../../helpers/Auction.helpers';
+import useValidBeneficiary from '../../hooks/useValidBeneficiary';
 
 const AuctionListItem = ({auction}) => {
-  const { account } = useWeb3React();
+  const isBeneficiary = useValidBeneficiary();
   const {id, startTime, endTime, isRedeemable, isClaimed} = auction;
   const auctionPeriod = getPeriodTime(startTime, endTime);
 
   const url = getAuctionCardUrl(auctionPeriod, auction);
 
-  const isClaimable = account === BENEFICIARY_ACCOUNT && !isClaimed;
   const isLive = auctionPeriod === AUCTION_PERIOD.LIVE;
   const isOver = auctionPeriod === AUCTION_PERIOD.OVER;
+  const isClaimable = isBeneficiary && !isClaimed && isOver;
 
   const renderText = () => {
     switch (true) {

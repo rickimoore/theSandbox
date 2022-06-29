@@ -4,15 +4,15 @@ import {Auction} from '../../proptypes/auction';
 import formatEth from '../../utils/formatEth';
 import Link from 'next/link';
 import {hexToNumber} from '../../utils/hexToNumber';
-import {AUCTION_PERIOD, BENEFICIARY_ACCOUNT} from '../../../constants';
+import {AUCTION_PERIOD} from '../../../constants';
 import {getPeriodTime} from '../../utils/getTimePeriod';
-import {useWeb3React} from '@web3-react/core';
 import ClaimAuction from '../ClaimAuction/ClaimAuction';
 import formatAddress from '../../utils/formatAddress';
 import useMinBidAmount from '../../hooks/useMinBidAmount';
+import useValidBeneficiary from '../../hooks/useValidBeneficiary';
 
 const AuctionActions = ({auction}) => {
-  const { account } = useWeb3React();
+  const isBeneficiary = useValidBeneficiary();
   const { id, startTime, endTime, highestBid, isClaimed, highestBidder } = auction;
   const { minBidAmount } = useMinBidAmount(auction);
 
@@ -35,7 +35,7 @@ const AuctionActions = ({auction}) => {
   }
 
   if(auctionPeriod === AUCTION_PERIOD.OVER) {
-    if(account === BENEFICIARY_ACCOUNT && !isClaimed) {
+    if(isBeneficiary && !isClaimed) {
       return (
           <ClaimAuction auctionId={id}/>
       )
