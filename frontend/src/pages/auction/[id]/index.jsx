@@ -25,8 +25,6 @@ export default function AuctionPage () {
 
   const timeRef = data && new Date(parseInt(auctionLive ? data.endTime : data.startTime) * 1000);
 
-  console.log(data)
-
   const onFinish = () => {
 
   }
