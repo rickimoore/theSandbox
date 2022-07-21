@@ -28,6 +28,9 @@ module.exports = {
         '576': '576px',
         '95': '95%'
       },
+      fontSize: {
+        caption: '10px'
+      },
       colors: {
         'sand': '#ffebcd',
         'sandMedium': '#ffdead',
