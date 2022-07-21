@@ -6,7 +6,7 @@ import Link from 'next/link';
 const Button = ({onClick, className, children, isDisabled, isLoading, href}) => {
     const renderBtn = () => (
         <button
-            className={`disabled:opacity-50 min-w-100 disabled:pointer-events-none w-full cursor-pointer p-4 bg-midnight hover:bg-midnightMedium text-white ${className}`}
+            className={`disabled:opacity-50 min-w-100 disabled:pointer-events-none w-full cursor-pointer p-2 bg-midnight hover:bg-midnightMedium text-white ${className}`}
             disabled={isDisabled || isLoading} onClick={onClick}>
             {
                 isLoading ? <BeatLoader color="#ffffff"/> : children
