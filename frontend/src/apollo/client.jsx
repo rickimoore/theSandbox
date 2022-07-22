@@ -1,5 +1,6 @@
 import React from "react";
 import {ApolloProvider, ApolloClient, InMemoryCache} from "@apollo/client";
+import { ApolloProvider as ApolloHooksProvider } from 'react-apollo-hooks';
 import PropTypes from "prop-types";
 import {CHAIN_ID, DEFAULT_CHAIN_ID} from "../../constants";
 
@@ -17,7 +18,13 @@ new ApolloClient({
 
 const Provider = ({children}) => {
     const client = getClient(DEFAULT_CHAIN_ID);
-    return <ApolloProvider client={client}>{children}</ApolloProvider>;
+    return (
+        <ApolloProvider client={client}>
+            <ApolloHooksProvider client={client}>
+                {children}
+            </ApolloHooksProvider>
+        </ApolloProvider>
+    );
 }
 
 Provider.propTypes = {
