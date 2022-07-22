@@ -3,6 +3,7 @@ import React from "react";
 import '../styles/styles.css'
 import ApolloProvider from '../apollo/client';
 import '@rainbow-me/rainbowkit/styles.css';
+import "antd/dist/antd.css";
 
 import {
   getDefaultWallets,

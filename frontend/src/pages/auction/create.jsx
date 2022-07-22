@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import Navbar from '../../components/Navbar/Navbar';
-import "antd/dist/antd.css";
 import useValidBeneficiary from '../../hooks/useValidBeneficiary';
 import CreateAuction from '../../views/CreateAuction/CreateAuction';
 import dynamic from 'next/dynamic';
