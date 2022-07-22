@@ -1,3 +1,5 @@
+import {notification} from 'antd';
+
 export const getTransactionErrorMessage = (errorCode) => {
   switch (errorCode) {
     case 4001:
@@ -11,4 +13,14 @@ export const getTransactionErrorMessage = (errorCode) => {
         description: "An error occurred during the transaction. Try again later."
       }
   }
+}
+
+
+export const notifyTransactionError = (errorCode) => {
+  const message = getTransactionErrorMessage(errorCode);
+  notification.error({
+    message: message.title,
+    description: message.description,
+    placement: "bottomRight"
+  });
 }

@@ -9,7 +9,7 @@ import useValidBeneficiary from '../hooks/useValidBeneficiary';
 import {newAuctionValidation} from '../validations/newAuctionValidation';
 import useCalculatedGasFees from '../hooks/useCalculatedGasFees';
 import { notification } from 'antd';
-import {getTransactionErrorMessage} from '../helpers/Transaction.helpers';
+import {notifyTransactionError} from '../helpers/Transaction.helpers';
 
 const CreateAuctionForm = ({children}) => {
   const instance = useAuctionContract();
@@ -41,16 +41,6 @@ const CreateAuctionForm = ({children}) => {
     return getAmountPlusPercentage(minBid, minHigherBid);
   }, [minBid, minHigherBid]);
 
-  const handleError = (e) => {
-    setLoading(false);
-    const message = getTransactionErrorMessage(e.code);
-    notification.error({
-      message: message.title,
-      description: message.description,
-      placement: "bottomRight"
-    });
-  }
-
   const onSubmit = async () => {
     const { startEndTime } = getValues();
 
@@ -65,7 +55,10 @@ const CreateAuctionForm = ({children}) => {
       minHigherBid: Math.floor(minHigherBid * 100),
     };
 
-    const tx = await instance?.startBlockAuction(params, gasFees).catch(handleError);
+    const tx = await instance?.startBlockAuction(params, gasFees).catch(e => {
+      setLoading(false);
+      notifyTransactionError(e.code);
+    });
 
     if(!tx) return;
 
@@ -78,7 +71,7 @@ const CreateAuctionForm = ({children}) => {
 
     setIsCompleteTx(true);
     notification.success({
-      message: "Transcation Completed!",
+      message: "Transaction Completed!",
       description: "You can view your auction now.",
       placement: "bottomRight"
     });
