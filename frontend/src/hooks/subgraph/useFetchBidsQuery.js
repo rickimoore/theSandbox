@@ -30,7 +30,6 @@ const useFetchBidsQuery = (id) => {
     if(data) {
       const newBids = data.bids;
 
-      console.log(newBids.length, BID_PAGE_SIZE)
       setBids(prev => ([...prev, ...newBids]));
       setHasMore(newBids.length === BID_PAGE_SIZE);
     }
