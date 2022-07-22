@@ -12,7 +12,9 @@ export default function AuctionPage () {
   return id ? (
       <div className="bg-sandMedium">
         <Navbar/>
-        <Suspense fallback={<div className="h-screen w-screen flex items-center justify-center bg-sand">Loading...</div>}>
+        <Suspense fallback={
+          <div className="h-screen w-screen flex items-center justify-center bg-sand">Loading...</div>
+        }>
           <AuctionDetails id={id}/>
         </Suspense>
       </div>
